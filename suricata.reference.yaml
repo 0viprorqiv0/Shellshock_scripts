@@ -1,0 +1,29 @@
+vars:
+  address-groups:
+    HOME_NET: "[10.10.1.1/32,172.16.1.0/24]"
+    EXTERNAL_NET: "!$HOME_NET"
+
+af-packet:
+  - interface: ens37
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+
+outputs:
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert:
+            payload: yes
+            payload-buffer-saving: yes
+            http: yes
+
+default-rule-path: /etc/suricata/rules
+rule-files:
+  - local.rules

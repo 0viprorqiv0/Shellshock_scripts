@@ -1,0 +1,228 @@
+ bash recon_evidence.sh --extended --shellshock
+[sudo] password for viprorqiv: 
+Evidence directory: /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU
+
+=== 01-addresses ===
+Started: 2026-11-15T09:49:47Z
+Command: ip -br address 
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eth0             UNKNOWN        192.168.52.130/24 10.10.1.10/24 fe80::8a84:2e70:a421:af14/64 
+Finished: 2026-11-15T09:49:47Z
+Exit code: 0
+
+=== 02-route ===
+Started: 2026-11-15T09:49:47Z
+Command: ip route get 172.16.1.10 
+172.16.1.10 via 10.10.1.1 dev eth0 src 10.10.1.10 uid 1000 
+    cache 
+Finished: 2026-11-15T09:49:47Z
+Exit code: 0
+
+=== 03-ping ===
+Started: 2026-11-15T09:49:47Z
+Command: ping -n -c 3 -W 2 172.16.1.10 
+PING 172.16.1.10 (172.16.1.10) 56(84) bytes of data.
+64 bytes from 172.16.1.10: icmp_seq=1 ttl=63 time=2.40 ms
+64 bytes from 172.16.1.10: icmp_seq=2 ttl=63 time=6.16 ms
+64 bytes from 172.16.1.10: icmp_seq=3 ttl=63 time=0.844 ms
+
+--- 172.16.1.10 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 0.844/3.135/6.164/2.233 ms
+Finished: 2026-11-15T09:49:49Z
+Exit code: 0
+
+=== 04-neighbors ===
+Started: 2026-11-15T09:49:49Z
+Command: ip neigh show 
+10.10.1.1 dev eth0 lladdr 00:0c:29:9d:d8:da REACHABLE 
+Finished: 2026-11-15T09:49:49Z
+Exit code: 0
+
+=== 05-path ===
+Started: 2026-11-15T09:49:49Z
+Command: timeout 30 traceroute -n -m 5 -w 1 -q 1 172.16.1.10 
+traceroute to 172.16.1.10 (172.16.1.10), 5 hops max, 60 byte packets
+ 1  10.10.1.1  1.224 ms
+ 2  172.16.1.10  1.932 ms
+Finished: 2026-11-15T09:49:49Z
+Exit code: 0
+
+=== 06-discovery ===
+Started: 2026-11-15T09:49:49Z
+Command: sudo nmap -n -sn -PE -PS80\,443 -PA80 --reason --host-timeout 45s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/06-discovery 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:49 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received echo-reply ttl 63 (0.0033s latency).
+Nmap done: 1 IP address (1 host up) scanned in 0.11 seconds
+Finished: 2026-11-15T09:49:49Z
+Exit code: 0
+
+=== 07-tcp ===
+Started: 2026-11-15T09:49:49Z
+Command: sudo nmap -n -Pn -sS -p 21\,22\,80\,139\,445\,3306\,4444 --reason --host-timeout 90s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/07-tcp 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:49 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received user-set (0.0026s latency).
+
+PORT     STATE  SERVICE      REASON
+21/tcp   open   ftp          syn-ack ttl 63
+22/tcp   open   ssh          syn-ack ttl 63
+80/tcp   open   http         syn-ack ttl 63
+139/tcp  open   netbios-ssn  syn-ack ttl 63
+445/tcp  open   microsoft-ds syn-ack ttl 63
+3306/tcp open   mysql        syn-ack ttl 63
+4444/tcp closed krb524       reset ttl 63
+
+Nmap done: 1 IP address (1 host up) scanned in 0.11 seconds
+Finished: 2026-11-15T09:49:49Z
+Exit code: 0
+
+=== 08-service-os ===
+Started: 2026-11-15T09:49:49Z
+Command: sudo nmap -n -Pn -sS -sV -O --osscan-limit -p 21\,22\,80\,139\,445\,3306\,4444 --reason --host-timeout 180s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/08-service-os 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:49 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received user-set (0.0017s latency).
+
+PORT     STATE  SERVICE     REASON         VERSION
+21/tcp   open   ftp         syn-ack ttl 63 vsftpd 2.3.4
+22/tcp   open   ssh         syn-ack ttl 63 OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+80/tcp   open   http        syn-ack ttl 63 Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+139/tcp  open   netbios-ssn syn-ack ttl 63 Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+445/tcp  open   netbios-ssn syn-ack ttl 63 Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+3306/tcp open   mysql       syn-ack ttl 63 MySQL 5.0.51a-3ubuntu5
+4444/tcp closed krb524      reset ttl 63
+Device type: general purpose
+Running: Linux 2.6.X
+OS CPE: cpe:/o:linux:linux_kernel:2.6
+OS details: Linux 2.6.9 - 2.6.33
+Network Distance: 2 hops
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 12.71 seconds
+Finished: 2026-11-15T09:50:02Z
+Exit code: 0
+
+=== 10-icmp-timestamp ===
+Started: 2026-11-15T09:50:02Z
+Command: sudo nmap -n -sn -PP --reason --host-timeout 45s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/10-icmp-timestamp 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:50 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received timestamp-reply ttl 63 (0.0013s latency).
+Nmap done: 1 IP address (1 host up) scanned in 0.14 seconds
+Finished: 2026-11-15T09:50:02Z
+Exit code: 0
+
+=== 11-connect ===
+Started: 2026-11-15T09:50:02Z
+Command: timeout 100 nmap -n -Pn -sT -p 21\,22\,80 --reason --host-timeout 90s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/11-connect 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:50 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received user-set (0.0012s latency).
+
+PORT   STATE SERVICE REASON
+21/tcp open  ftp     syn-ack
+22/tcp open  ssh     syn-ack
+80/tcp open  http    syn-ack
+
+Nmap done: 1 IP address (1 host up) scanned in 0.03 seconds
+Finished: 2026-11-15T09:50:02Z
+Exit code: 0
+
+=== 12-ack ===
+Started: 2026-11-15T09:50:02Z
+Command: sudo nmap -n -Pn -sA -p 21\,22\,80\,443 --reason --host-timeout 90s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/12-ack 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:50 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received user-set (0.00090s latency).
+
+PORT    STATE      SERVICE REASON
+21/tcp  unfiltered ftp     reset ttl 63
+22/tcp  unfiltered ssh     reset ttl 63
+80/tcp  unfiltered http    reset ttl 63
+443/tcp unfiltered https   reset ttl 63
+
+Nmap done: 1 IP address (1 host up) scanned in 0.11 seconds
+Finished: 2026-11-15T09:50:02Z
+Exit code: 0
+
+=== 13-fin ===
+Started: 2026-11-15T09:50:02Z
+Command: sudo nmap -n -Pn -sF -p 21\,22\,80 --reason --host-timeout 90s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/13-fin 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:50 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received user-set.
+
+PORT   STATE         SERVICE REASON
+21/tcp open|filtered ftp     no-response
+22/tcp open|filtered ssh     no-response
+80/tcp open|filtered http    no-response
+
+Nmap done: 1 IP address (1 host up) scanned in 3.12 seconds
+Finished: 2026-11-15T09:50:06Z
+Exit code: 0
+
+=== 14-xmas ===
+Started: 2026-11-15T09:50:06Z
+Command: sudo nmap -n -Pn -sX -p 21\,22\,80 --reason --host-timeout 90s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/14-xmas 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:50 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received user-set.
+
+PORT   STATE         SERVICE REASON
+21/tcp open|filtered ftp     no-response
+22/tcp open|filtered ssh     no-response
+80/tcp open|filtered http    no-response
+
+Nmap done: 1 IP address (1 host up) scanned in 3.09 seconds
+Finished: 2026-11-15T09:50:09Z
+Exit code: 0
+
+=== 15-udp ===
+Started: 2026-11-15T09:50:09Z
+Command: sudo nmap -n -Pn -sU -sV --top-ports 10 --reason --host-timeout 180s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/15-udp 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:50 -0500
+Nmap scan report for 172.16.1.10
+Host is up, received user-set (0.0051s latency).
+
+PORT     STATE         SERVICE      REASON              VERSION
+53/udp   open          domain       udp-response ttl 63 ISC BIND 9.4.2
+67/udp   closed        dhcps        port-unreach ttl 63
+123/udp  closed        ntp          port-unreach ttl 63
+135/udp  closed        msrpc        port-unreach ttl 63
+137/udp  open          netbios-ns   udp-response ttl 63 Samba nmbd netbios-ns (workgroup: WORKGROUP)
+138/udp  open|filtered netbios-dgm  no-response
+161/udp  closed        snmp         port-unreach ttl 63
+445/udp  closed        microsoft-ds port-unreach ttl 63
+631/udp  closed        ipp          port-unreach ttl 63
+1434/udp closed        ms-sql-m     port-unreach ttl 63
+Service Info: Host: METASPLOITABLE
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 102.26 seconds
+Finished: 2026-11-15T09:51:51Z
+Exit code: 0
+
+=== 20-shellshock ===
+Started: 2026-11-15T09:51:51Z
+Command: sudo nmap -n -Pn -sV -p 80 --script http-shellshock --script-args http-shellshock.uri=/cgi-bin/test.cgi --script-timeout 30s --host-timeout 90s -oA /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU/20-shellshock 172.16.1.10 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-11-15 04:51 -0500
+Nmap scan report for 172.16.1.10
+Host is up (0.0029s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+|_http-server-header: Apache/2.2.8 (Ubuntu) DAV/2
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 13.29 seconds
+Finished: 2026-11-15T09:52:04Z
+Exit code: 0
+
+Steps with nonzero exit codes: 0
+A zero exit code does not establish reachability, an open port or a vulnerability.
+Review scan output and status.tsv, including timeout and OS reliability warnings.
+Evidence saved to: /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU
+Integrity check: cd /home/viprorqiv/recon-evidence-20261115T094947Z-3uFZMU && sha256sum -c SHA256SUMS.txt
